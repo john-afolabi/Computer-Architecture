@@ -2,6 +2,16 @@
 
 import sys
 
+LDI = 130
+MUL = 162
+PRN = 71
+HLT = 1
+PUSH = 69
+POP = 70
+ADD = 160
+CALL = 80
+RET = 17
+
 
 class CPU:
     """Main CPU class."""
@@ -10,6 +20,12 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0
+
+        self.branchtable = {}
+        self.branchtable[LDI] = self.handle_ldi
+        self.branchtable[HLT] = self.handle_hlt
+        self.branchtable[PRN] = self.handle_prn
+        self.branchtable[MUL] = self.handle_mul
 
     def ram_read(self, address):
         return self.ram[address]
@@ -75,24 +91,32 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        LDI = 130
-        PRN = 71
-        HLT = 1
-        MUL = 162
+        running = True
 
-        while True:
-            self.ir = self.ram[self.pc]
-            operand_a = self.ram_read(self.pc + 1)
-            operand_b = self.ram_read(self.pc + 2)
+        while running:
+            IR = self.ram[self.pc]
+            try:
+                if IR in self.branchtable:
+                    self.branchtable[IR]()
+            except ValueError:
+                print(f'Invalid Opcode {hex(IR)}')
 
-            if self.ir == HLT:
-                sys.exit()
-            elif self.ir == LDI:
-                self.reg[operand_a] = operand_b
-                self.pc += 3
-            elif self.ir == PRN:
-                print(self.reg[operand_a])
-                self.pc += 2
-            elif self.ir == MUL:
-                self.alu('MUL', operand_a, operand_b)
-                self.pc += 3
+    def handle_hlt(self):
+        sys.exit()
+
+    def handle_mul(self):
+        operand_a = self.ram_read(self.pc + 1)
+        operand_b = self.ram_read(self.pc + 2)
+        self.alu('MUL', operand_a, operand_b)
+        self.pc += 3
+
+    def handle_ldi(self):
+        operand_a = self.ram_read(self.pc + 1)
+        operand_b = self.ram_read(self.pc + 2)
+        self.reg[operand_a] = operand_b
+        self.pc += 3
+
+    def handle_prn(self):
+        operand_a = self.ram_read(self.pc + 1)
+        print(self.reg[operand_a])
+        self.pc += 2
