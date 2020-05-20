@@ -78,6 +78,7 @@ class CPU:
         LDI = 130
         PRN = 71
         HLT = 1
+        MUL = 162
 
         while True:
             self.ir = self.ram[self.pc]
@@ -92,3 +93,6 @@ class CPU:
             elif self.ir == PRN:
                 print(self.reg[operand_a])
                 self.pc += 2
+            elif self.ir == MUL:
+                self.alu('MUL', operand_a, operand_b)
+                self.pc += 3
