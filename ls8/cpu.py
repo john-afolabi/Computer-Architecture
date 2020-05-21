@@ -20,6 +20,7 @@ class CPU:
         self.ram = [0] * 256
         self.reg = [0] * 8
         self.pc = 0
+        self.sp = 7
 
         self.branchtable = {}
         self.branchtable[LDI] = self.handle_ldi
@@ -119,4 +120,18 @@ class CPU:
     def handle_prn(self):
         operand_a = self.ram_read(self.pc + 1)
         print(self.reg[operand_a])
+        self.pc += 2
+
+    def handle_push(self):
+        reg = self.ram_read(self.pc + 1)
+        val = self.reg[reg]
+        self.reg[self.sp] -= 1
+        self.ram[self.reg[self.sp]] = val
+        self.pc += 2
+
+    def handle_pop(self):
+        reg = self.ram_read(self.pc + 1)
+        val = self.ram_read(self.reg[self.sp])
+        self.reg[reg] = val
+        self.reg[self.sp] += 1
         self.pc += 2
