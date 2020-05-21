@@ -22,11 +22,14 @@ class CPU:
         self.pc = 0
         self.sp = 7
 
-        self.branchtable = {}
-        self.branchtable[LDI] = self.handle_ldi
-        self.branchtable[HLT] = self.handle_hlt
-        self.branchtable[PRN] = self.handle_prn
-        self.branchtable[MUL] = self.handle_mul
+        self.branchtable = {
+            LDI: self.handle_ldi,
+            HLT: self.handle_hlt,
+            PRN: self.handle_prn,
+            MUL: self.handle_mul,
+            POP: self.handle_pop,
+            PUSH: self.handle_push
+        }
 
     def ram_read(self, address):
         return self.ram[address]
