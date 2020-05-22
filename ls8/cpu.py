@@ -28,7 +28,10 @@ class CPU:
             PRN: self.handle_prn,
             MUL: self.handle_mul,
             POP: self.handle_pop,
-            PUSH: self.handle_push
+            PUSH: self.handle_push,
+            ADD: self.handle_add,
+            CALL: self.handle_call,
+            RET: self.handle_ret,
         }
 
     def ram_read(self, address):
@@ -138,3 +141,19 @@ class CPU:
         self.reg[reg] = val
         self.reg[self.sp] += 1
         self.pc += 2
+
+    def handle_add(self):
+        operand_a = self.ram_read(self.pc + 1)
+        operand_b = self.ram_read(self.pc + 2)
+        self.alu('ADD', operand_a, operand_b)
+        self.pc += 3
+
+    def handle_call(self):
+        reg = self.ram_read(self.pc + 1)
+        self.reg[self.sp] -= 1
+        self.ram_write(self.reg[self.sp], self.pc + 2)
+        self.pc = self.reg[reg]
+
+    def handle_ret(self):
+        self.pc = self.ram_read(self.reg[self.sp])
+        self.reg[self.sp] += 1
